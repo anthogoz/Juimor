@@ -28,7 +28,7 @@
         .tab-btn.active { color: #f59e0b; border-color: #f59e0b; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 to-gray-900 text-white antialiased">
+<body class="bg-gradient-to-br from-slate-900 to-gray-900 text-white antialiased overflow-x-hidden">
 
     <!-- ==== SETUP SCREEN ==== -->
     <div id="setup-screen" class="app-screen flex flex-col items-center justify-center p-4">
@@ -74,8 +74,8 @@
     </div>
 
     <!-- ==== MAIN SCREEN ==== -->
-    <div id="main-screen" class="hidden app-screen grid p-4 md:p-6 relative overflow-hidden" style="grid-template-rows: auto auto 1fr;">
-        <header class="flex-shrink-0 flex justify-between items-start">
+    <div id="main-screen" class="hidden app-screen grid relative" style="grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr);">
+        <header class="flex-shrink-0 flex justify-between items-start px-4 md:px-6 pt-4 md:pt-6">
             <div>
                 <div class="flex items-baseline space-x-2">
                     <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
@@ -101,30 +101,30 @@
                     <p class="text-gray-400 text-base md:text-lg">Objectif: <span id="display-target" class="font-bold text-amber-400"></span></p>
                 </div>
             </div>
-            <div class="text-center mt-2">
+            <div class="text-center mt-2 px-4 md:px-6">
                 <p id="bac-legal-info" class="text-gray-400 text-sm h-5"></p>
                 <p id="time-to-zero" class="text-amber-400 text-sm font-bold h-5"></p>
             </div>
         </main>
 
         <div id="bottom-section" class="w-full max-w-2xl mx-auto flex flex-col min-h-0">
-            <div class="flex-shrink-0 flex justify-center space-x-8 mb-2">
+            <div class="flex-shrink-0 flex justify-center space-x-8 mb-2 px-4 md:px-6">
                 <button id="tab-history" class="tab-btn active font-bold py-1">Historique</button>
                 <button id="tab-graph" class="tab-btn font-bold py-1">Graphique</button>
             </div>
             <div class="swiper-container flex-grow min-h-0 mb-2">
-                <div class="swiper-wrapper h-full">
-                    <div class="swiper-slide h-full">
+                <div class="swiper-wrapper h-full items-center"> <!-- Ajout de items-center pour un meilleur alignement vertical -->
+                    <div class="swiper-slide h-full w-5/6 max-w-md">
                         <div id="drinks-history" class="h-full overflow-y-auto space-y-2 glass-card p-3 rounded-lg"></div>
                     </div>
-                    <div class="swiper-slide h-full">
+                    <div class="swiper-slide h-full w-5/6 max-w-md">
                         <div class="glass-card rounded-lg p-2 h-full">
                             <canvas id="bac-chart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="action-buttons" class="grid grid-cols-2 gap-3 flex-shrink-0">
+            <div id="action-buttons" class="grid grid-cols-2 gap-3 flex-shrink-0 px-4 md:px-6 pb-4 md:pb-6">
                 <button id="add-drink-btn" class="action-btn col-span-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
                 <button id="edit-drink-btn" class="action-btn hidden bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg text-lg">Modifier</button>
                 <button id="sister-drink-btn" class="action-btn hidden bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-lg text-lg">La petite soeur</button>
@@ -201,24 +201,23 @@
             function initializeApp() { createSteppers(document.body); populatePresetButtons(); populateCocktailPresets(); if (loadState() && userProfile.name) { startSession(); } else { setupScreen.style.display = 'flex'; } }
             function initializeSwiper() {
                 mainSwiper = new Swiper('.swiper-container', {
-                    autoHeight: false,
-                    initialSlide: 0, // On démarre sur le premier slide (qui est maintenant l'historique)
+                    slidesPerView: 'auto',
+                    centeredSlides: true,
+                    spaceBetween: 16,
                 });
                 const tabGraph = document.getElementById('tab-graph');
                 const tabHistory = document.getElementById('tab-history');
 
                 mainSwiper.on('slideChange', function () {
-                    // Logique inversée pour correspondre au nouvel ordre
-                    if (mainSwiper.activeIndex === 0) { // Slide 0 = Historique
+                    if (mainSwiper.activeIndex === 0) {
                         tabHistory.classList.add('active');
                         tabGraph.classList.remove('active');
-                    } else { // Slide 1 = Graphique
+                    } else {
                         tabHistory.classList.remove('active');
                         tabGraph.classList.add('active');
                     }
                 });
 
-                // On inverse aussi les clics
                 tabHistory.addEventListener('click', () => mainSwiper.slideTo(0));
                 tabGraph.addEventListener('click', () => mainSwiper.slideTo(1));
             }
