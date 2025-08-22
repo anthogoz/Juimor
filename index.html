@@ -70,7 +70,7 @@
                     </select>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="number-stepper" data-value="7" data-step="0.5" data-min="0" data-unit="°"></div>
-                        <div class="number-stepper" data-value="50" data-step="1" data-min="0" data-unit="cl"></div>
+                        <div class="number-stepper" data-value="50" data-unit="cl"></div>
                     </div>
                 </div>
 
@@ -87,10 +87,13 @@
 
     <!-- ==== MAIN SCREEN ==== -->
     <div id="main-screen" class="hidden app-screen flex-col p-4 md:p-6 relative">
-        <header class="flex justify-between items-center">
+        <header class="flex justify-between items-start">
             <div>
-                <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
-                <button id="reset-btn" class="text-xs text-gray-500 hover:text-amber-400 transition">Réinitialiser</button>
+                <div class="flex items-baseline space-x-2">
+                    <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
+                    <span id="version" class="text-xs text-gray-600">v1.8</span>
+                </div>
+                <button id="reset-btn" class="text-xs text-gray-500 hover:text-amber-400 transition mt-1">Réinitialiser</button>
             </div>
             <div class="text-right">
                 <p id="display-name" class="font-bold text-lg"></p>
@@ -128,7 +131,6 @@
                 <button id="sister-drink-btn" class="hidden w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-4 rounded-lg text-lg shadow-lg">La petite soeur</button>
             </div>
         </div>
-        <div id="version" class="absolute bottom-2 right-2 text-xs text-gray-600">v1.7</div>
     </div>
 
     <!-- ==== ADD DRINK MODAL ==== -->
@@ -155,12 +157,12 @@
                 <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
                 <div id="simple-drink-fields" class="grid grid-cols-2 gap-4">
                     <div id="drink-abv-stepper" class="number-stepper" data-value="5" data-step="0.5" data-min="0" data-unit="°"></div>
-                    <div id="drink-vol-stepper" class="number-stepper" data-value="33" data-step="1" data-min="0" data-unit="cl"></div>
+                    <div id="drink-vol-stepper" class="number-stepper" data-value="33" data-unit="cl"></div>
                 </div>
                 <div id="mixed-drink-section" class="hidden space-y-2 pt-2 border-t border-gray-700">
                    <label class="flex items-center justify-center text-sm text-gray-400 cursor-pointer"><input type="checkbox" id="is-mixed-drink" class="accent-amber-500 h-4 w-4 mr-2">C'est un cocktail / mélange</label>
                    <div id="mixed-drink-fields" class="hidden space-y-4">
-                       <div class="number-stepper" data-value="25" data-step="1" data-min="0" data-unit="cl"></div>
+                       <div class="number-stepper" data-value="25" data-unit="cl"></div>
                        <div class="number-stepper" data-value="40" data-step="1" data-min="0" data-unit="°"></div>
                        <div class="number-stepper" data-value="20" data-step="5" data-min="0" data-max="100" data-unit="%"></div>
                    </div>
@@ -187,7 +189,7 @@
             'Vin': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 14v8"/><path d="M12 14a5 5 0 0 0 5-5V4H7v5a5 5 0 0 0 5 5Z"/></svg>`,
             'Spiritueux': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7H3"/><path d="m18 7-1.5-4.5a1 1 0 0 0-1- .5H8.5a1 1 0 0 0-1 .5L6 7"/><path d="M7 7h10v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7Z"/></svg>`,
             'Shot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7h-2L15 2H9L7 7H5"/><path d="M7 7v11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7"/></svg>`,
-            'Préférée': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/></svg>`,
+            'Star': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/></svg>`,
             'Trash': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
         };
 
@@ -203,6 +205,7 @@
 
         // --- Constants ---
         const ALCOHOL_DENSITY = 0.789, MALE_CONSTANT = 0.68, FEMALE_CONSTANT = 0.55, ELIMINATION_RATE_PER_HOUR = 0.15;
+        const VOLUME_STEPS = [3, 4, 12.5, 25, 33, 50, 75, 100, 150, 200];
 
         // --- LOCAL STORAGE ---
         function saveState() { localStorage.setItem('juimorState', JSON.stringify({ userProfile, drinks, sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null })); }
@@ -275,11 +278,12 @@
             e.preventDefault();
             const favAbvStepper = setupForm.querySelector('[data-unit="°"]');
             const favVolStepper = setupForm.querySelector('[data-unit="cl"]');
+            const favType = document.getElementById('fav-drink-type').value;
             userProfile = {
                 name: document.getElementById('user-name').value, weight: parseFloat(document.getElementById('user-weight').value), gender: document.getElementById('user-gender').value,
                 targetLevel: parseInt(document.getElementById('target-level').value),
                 favDrink: {
-                    type: document.getElementById('fav-drink-type').value, name: "Préférée",
+                    type: favType, name: favType, // Use type as name
                     abv: parseFloat(favAbvStepper.dataset.value), vol: parseFloat(favVolStepper.dataset.value)
                 }
             };
@@ -357,14 +361,31 @@
             const btn = e.target.closest('.stepper-btn');
             if (!btn) return;
             const stepper = btn.parentElement;
-            const step = parseFloat(stepper.dataset.step);
-            const min = parseFloat(stepper.dataset.min);
-            const max = parseFloat(stepper.dataset.max);
             let value = parseFloat(stepper.dataset.value);
-            
-            value += (btn.textContent === '+') ? step : -step;
-            if (!isNaN(min)) value = Math.max(min, value);
-            if (!isNaN(max)) value = Math.min(max, value);
+
+            if (stepper.dataset.unit === 'cl') {
+                let currentIndex = VOLUME_STEPS.indexOf(value);
+                if (currentIndex === -1) {
+                    currentIndex = VOLUME_STEPS.findIndex(step => step >= value);
+                    if(currentIndex === -1) currentIndex = VOLUME_STEPS.length -1;
+                    if(btn.textContent === '-') currentIndex = Math.max(0, currentIndex -1);
+                } else {
+                    if (btn.textContent === '+') {
+                        currentIndex = Math.min(VOLUME_STEPS.length - 1, currentIndex + 1);
+                    } else {
+                        currentIndex = Math.max(0, currentIndex - 1);
+                    }
+                }
+                value = VOLUME_STEPS[currentIndex];
+
+            } else { // Linear steps for ° and %
+                const step = parseFloat(stepper.dataset.step);
+                const min = parseFloat(stepper.dataset.min);
+                const max = parseFloat(stepper.dataset.max);
+                value += (btn.textContent === '+') ? step : -step;
+                if (!isNaN(min)) value = Math.max(min, value);
+                if (!isNaN(max)) value = Math.min(max, value);
+            }
 
             updateStepper(stepper, value);
         }
@@ -394,8 +415,11 @@
             document.getElementById('display-target').textContent = userProfile.targetLevel;
             
             const fav = userProfile.favDrink;
-            favBtn.innerHTML = `${ICONS[fav.type]}<span class="ml-3 font-bold">Préférée</span>`;
+            favBtn.innerHTML = `${ICONS.Star}<span class="ml-3 font-bold">Préférée</span>`;
             favBtn.dataset.type = fav.type;
+            favBtn.dataset.name = fav.name;
+            favBtn.dataset.abv = fav.abv;
+            favBtn.dataset.vol = fav.vol;
 
             initializeChart();
             if (updateInterval) clearInterval(updateInterval);
