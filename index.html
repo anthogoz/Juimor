@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --app-height: 100vh; }
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         .app-screen { height: var(--app-height); }
         .juimor-gauge-bg { stroke: #4b5563; }
         .juimor-gauge-fg { transition: stroke 0.5s ease-in-out, stroke-dashoffset 0.5s ease-in-out; transform: rotate(-90deg); transform-origin: center; }
@@ -74,7 +74,7 @@
     </div>
 
     <!-- ==== MAIN SCREEN ==== -->
-    <div id="main-screen" class="hidden app-screen grid relative" style="grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr);">
+    <div id="main-screen" class="hidden app-screen grid" style="grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr);">
         <header class="flex-shrink-0 flex justify-between items-start px-4 md:px-6 pt-4 md:pt-6">
             <div>
                 <div class="flex items-baseline space-x-2">
@@ -89,7 +89,7 @@
             </div>
         </header>
 
-        <main class="flex flex-col items-center justify-center min-h-0">
+        <main class="flex flex-col items-center justify-center min-h-0 pt-2">
              <div class="relative w-56 h-56 md:w-80 md:h-80 transition-all duration-300">
                 <svg class="w-full h-full" viewBox="0 0 100 100"><circle class="juimor-gauge-bg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" /><circle id="juimor-gauge" class="juimor-gauge-fg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" stroke-dasharray="282.7" stroke-dashoffset="282.7" /></svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -107,24 +107,24 @@
             </div>
         </main>
 
-        <div id="bottom-section" class="w-full max-w-2xl mx-auto flex flex-col min-h-0">
-            <div class="flex-shrink-0 flex justify-center space-x-8 mb-2 px-4 md:px-6">
+        <div id="bottom-section" class="w-full flex flex-col min-h-0 px-4 md:px-6 pb-4 md:pb-6 pt-2">
+            <div class="flex-shrink-0 flex justify-center space-x-8 mb-2">
                 <button id="tab-history" class="tab-btn active font-bold py-1">Historique</button>
                 <button id="tab-graph" class="tab-btn font-bold py-1">Graphique</button>
             </div>
             <div class="swiper-container flex-grow min-h-0 mb-2">
-                <div class="swiper-wrapper h-full items-center"> <!-- Ajout de items-center pour un meilleur alignement vertical -->
-                    <div class="swiper-slide h-full w-5/6 max-w-md">
+                <div class="swiper-wrapper h-full">
+                    <div class="swiper-slide h-full">
                         <div id="drinks-history" class="h-full overflow-y-auto space-y-2 glass-card p-3 rounded-lg"></div>
                     </div>
-                    <div class="swiper-slide h-full w-5/6 max-w-md">
+                    <div class="swiper-slide h-full">
                         <div class="glass-card rounded-lg p-2 h-full">
                             <canvas id="bac-chart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="action-buttons" class="grid grid-cols-2 gap-3 flex-shrink-0 px-4 md:px-6 pb-4 md:pb-6">
+            <div id="action-buttons" class="grid grid-cols-2 gap-3 flex-shrink-0">
                 <button id="add-drink-btn" class="action-btn col-span-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
                 <button id="edit-drink-btn" class="action-btn hidden bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg text-lg">Modifier</button>
                 <button id="sister-drink-btn" class="action-btn hidden bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-lg text-lg">La petite soeur</button>
@@ -201,9 +201,7 @@
             function initializeApp() { createSteppers(document.body); populatePresetButtons(); populateCocktailPresets(); if (loadState() && userProfile.name) { startSession(); } else { setupScreen.style.display = 'flex'; } }
             function initializeSwiper() {
                 mainSwiper = new Swiper('.swiper-container', {
-                    slidesPerView: 'auto',
-                    centeredSlides: true,
-                    spaceBetween: 16,
+                    autoHeight: false,
                 });
                 const tabGraph = document.getElementById('tab-graph');
                 const tabHistory = document.getElementById('tab-history');
@@ -260,7 +258,7 @@
             }
             function updateTimer() { if (!sessionStartTime) return; const elapsed = new Date(Date.now() - sessionStartTime); const [h, m, s] = [elapsed.getUTCHours(), elapsed.getUTCMinutes(), elapsed.getUTCSeconds()].map(t => String(t).padStart(2, '0')); sessionTimeDisplay.textContent = `Session: ${h}:${m}:${s}`; timerUpdateAnimation = requestAnimationFrame(updateTimer); }
             function calculateBAC(atTime) { if (!userProfile.weight) return 0; const genderConstant = userProfile.gender === 'male' ? MALE_CONSTANT : FEMALE_CONSTANT; const bodyWater = userProfile.weight * genderConstant; const totalGramsIngested = drinks.filter(drink => drink.grams && drink.time <= atTime).reduce((sum, drink) => sum + drink.grams, 0); if (totalGramsIngested === 0) return 0; const peakBAC = totalGramsIngested / bodyWater; const hoursSinceStart = (atTime - sessionStartTime) / (3600 * 1000); const alcoholEliminated = ELIMINATION_RATE_PER_HOUR * hoursSinceStart; return Math.max(0, peakBAC - alcoholEliminated); }
-            function updateBacData() { if (!sessionStartTime) return; const now = new Date(); const currentBAC_gL = calculateBAC(now); const juimorLevel = Math.min(10, (currentBAC_gL / JUIMOR_SCALE_MAX_BAC) * 10); document.getElementById('current-level').textContent = juimorLevel.toFixed(1); const gauge = document.getElementById('juimor-gauge'); const levelText = document.getElementById('current-level'); const legalLimitJuimor = (0.5 / JUIMOR_SCALE_MAX_BAC) * 10; let color; if (juimorLevel > 7.5) color = GAUGE_COLORS.red; else if (juimorLevel > 5) color = GAUGE_COLORS.orange; else if (juimorLevel > legalLimitJuimor) color = GAUGE_COLORS.green; else color = GAUGE_COLORS.blue; gauge.style.stroke = color.hex; levelText.className = `text-6xl md:text-8xl font-black transition-all duration-300 ${color.text}`; gauge.style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10)); document.getElementById('bac-legal-info').textContent = currentBAC_gL > 0 ? `Taux estimé: ${currentBAC_gL.toFixed(2)} g/L` : ''; const timeToZeroHours = currentBAC_gL / ELIMINATION_RATE_PER_HOUR; const timeToZeroEl = document.getElementById('time-to-zero'); if (timeToZeroHours > 0) { const zeroTime = new Date(now.getTime() + timeToZeroHours * 3600000); timeToZeroEl.textContent = `Retour à 0 estimé à ${zeroTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`; } else { timeToZeroEl.textContent = ''; } updateChart(color.hex); }
+            function updateBacData() { if (!sessionStartTime) return; const now = new Date(); const currentBAC_gL = calculateBAC(now); const juimorLevel = Math.min(10, (currentBAC_gL / JUIMOR_SCALE_MAX_BAC) * 10); document.getElementById('current-level').textContent = juimorLevel.toFixed(1); const gauge = document.getElementById('juimor-gauge'); const levelText = document.getElementById('current-level'); const legalLimitJuimor = (0.5 / JUIMOR_SCALE_MAX_BAC) * 10; let color; if (juimorLevel > 7.5) color = GAUGE_COLORS.red; else if (juimorLevel > 5) color = GAUGE_COLORS.orange; else if (juimorLevel > 5) color = GAUGE_COLORS.orange; else if (juimorLevel > legalLimitJuimor) color = GAUGE_COLORS.green; else color = GAUGE_COLORS.blue; gauge.style.stroke = color.hex; levelText.className = `text-6xl md:text-8xl font-black transition-all duration-300 ${color.text}`; gauge.style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10)); document.getElementById('bac-legal-info').textContent = currentBAC_gL > 0 ? `Taux estimé: ${currentBAC_gL.toFixed(2)} g/L` : ''; const timeToZeroHours = currentBAC_gL / ELIMINATION_RATE_PER_HOUR; const timeToZeroEl = document.getElementById('time-to-zero'); if (timeToZeroHours > 0) { const zeroTime = new Date(now.getTime() + timeToZeroHours * 3600000); timeToZeroEl.textContent = `Retour à 0 estimé à ${zeroTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`; } else { timeToZeroEl.textContent = ''; } updateChart(color.hex); }
             function updateFullUI() { updateBacData(); const isDrinkSelected = selectedDrinkId !== null; addDrinkBtn.classList.toggle('hidden', isDrinkSelected); addDrinkBtn.classList.toggle('col-span-2', !isDrinkSelected); editDrinkBtn.classList.toggle('hidden', !isDrinkSelected); sisterDrinkBtn.classList.toggle('hidden', !isDrinkSelected); addWaterBtn.classList.toggle('col-span-2', !isDrinkSelected); addWaterBtn.classList.toggle('col-span-full', isDrinkSelected); updateHistory(); }
             function updateHistory() { historyDiv.innerHTML = (drinks.length > 0) ? drinks.slice().reverse().map(drink => { const icon = ICONS[drink.type] || ICONS['Cocktail']; if (drink.type === 'Eau') { return `<div class="history-item bg-gray-700/50 p-2 rounded-md flex justify-between items-center border-2 border-transparent" data-id="${drink.id}" data-type="Eau"><div class="flex items-center space-x-3"><span class="text-blue-400">💧</span><p class="font-medium">${drink.name}</p></div><div class="flex items-center space-x-3"><p class="text-sm text-gray-400">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p><button class="delete-drink-btn text-gray-500 hover:text-red-400 p-1">${ICONS.Trash}</button></div></div>`; } return `<div class="history-item bg-gray-700/50 p-2 rounded-md flex justify-between items-center border-2 border-transparent cursor-pointer ${drink.id === selectedDrinkId ? 'selected' : ''}" data-id="${drink.id}"><div class="flex items-center space-x-3 pointer-events-none"><span class="text-amber-400">${icon}</span><div><p class="font-medium">${drink.name}</p><p class="text-xs text-gray-400">${drink.vol}cl à ${drink.abv}°</p></div></div><div class="flex items-center space-x-3"><p class="text-sm text-gray-400 pointer-events-none">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p><button class="delete-drink-btn text-gray-500 hover:text-red-400 p-1">${ICONS.Trash}</button></div></div>`; }).join('') : '<p class="text-gray-500 text-center">Aucune boisson pour le moment.</p>'; }
             let chartInitialized = false;
