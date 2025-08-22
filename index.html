@@ -20,14 +20,23 @@
         .app-screen {
             height: var(--app-height);
         }
-        .juimor-gauge-bg { stroke: #374151; }
+        .juimor-gauge-bg { stroke: #4b5563; } /* gray-600 */
         .juimor-gauge-fg {
-            stroke: #f59e0b;
-            transition: stroke-dashoffset 0.5s ease-in-out;
+            transition: stroke 0.5s ease-in-out, stroke-dashoffset 0.5s ease-in-out;
             transform: rotate(-90deg);
             transform-origin: center;
         }
-        .modal-backdrop { background-color: rgba(0,0,0,0.7); }
+        .glass-card {
+            background-color: rgba(31, 41, 55, 0.6); /* gray-800/60 */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-backdrop { 
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
         .preset-btn, .stepper-btn, #add-drink-btn, #sister-drink-btn { 
             transition: transform 0.1s ease-in-out, background-color 0.2s; 
         }
@@ -40,23 +49,23 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white antialiased">
+<body class="bg-gradient-to-br from-slate-900 to-gray-900 text-white antialiased">
 
     <!-- ==== SETUP SCREEN ==== -->
     <div id="setup-screen" class="app-screen flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+        <div class="w-full max-w-md mx-auto glass-card rounded-2xl p-6 md:p-8 shadow-2xl">
             <h1 class="text-4xl font-black text-center text-amber-400 mb-2">JUIMOR</h1>
             <p class="text-center text-gray-400 mb-8">Configure ton profil</p>
 
             <form id="setup-form" class="space-y-4">
-                <input type="text" id="user-name" placeholder="Ton nom" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
+                <input type="text" id="user-name" placeholder="Ton nom" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
                 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="flex items-center bg-gray-700 border-2 border-gray-600 rounded-lg focus-within:border-amber-500">
+                    <div class="flex items-center bg-gray-700/50 border-2 border-gray-600 rounded-lg focus-within:border-amber-500">
                         <input type="number" min="0" id="user-weight" placeholder="Poids" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none appearance-none" required>
                         <span class="text-gray-400 pr-4">kg</span>
                     </div>
-                    <select id="user-gender" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
+                    <select id="user-gender" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
                         <option value="" disabled selected>Sexe</option>
                         <option value="male">Homme</option>
                         <option value="female">Femme</option>
@@ -65,7 +74,7 @@
 
                 <div>
                     <label class="text-sm font-medium text-gray-400">Ta boisson préférée</label>
-                    <select id="fav-drink-type" class="w-full mt-1 bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500 mb-2">
+                    <select id="fav-drink-type" class="w-full mt-1 bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500 mb-2">
                         <option value="Bière">Bière</option><option value="Vin">Vin</option><option value="Spiritueux">Spiritueux</option><option value="Shot">Shot</option>
                     </select>
                     <div class="grid grid-cols-2 gap-4">
@@ -91,7 +100,7 @@
             <div>
                 <div class="flex items-baseline space-x-2">
                     <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
-                    <span id="version" class="text-xs text-gray-600">v1.8</span>
+                    <span id="version" class="text-xs text-gray-600">v1.9</span>
                 </div>
                 <button id="reset-btn" class="text-xs text-gray-500 hover:text-amber-400 transition mt-1">Réinitialiser</button>
             </div>
@@ -110,7 +119,7 @@
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
                     <p class="text-gray-400 text-lg">Taux Actuel</p>
                     <div class="flex items-baseline justify-center space-x-2">
-                        <p id="current-level" class="text-7xl md:text-8xl font-black">0.0</p>
+                        <p id="current-level" class="text-7xl md:text-8xl font-black transition-colors duration-500">0.0</p>
                         <span class="text-4xl md:text-5xl font-bold text-gray-500">/10</span>
                     </div>
                     <p class="text-gray-400 text-lg">Objectif: <span id="display-target" class="font-bold text-amber-400"></span></p>
@@ -121,10 +130,10 @@
         </main>
 
         <div class="w-full max-w-2xl mx-auto">
-            <div class="bg-gray-800 rounded-lg p-3 mb-4"><canvas id="bac-chart"></canvas></div>
+            <div class="glass-card rounded-lg p-3 mb-4"><canvas id="bac-chart"></canvas></div>
             <div id="drinks-history-container" class="mb-4">
                 <h2 class="font-bold text-lg mb-2">Historique des consos</h2>
-                <div id="drinks-history" class="space-y-2 max-h-48 overflow-y-auto bg-gray-800 p-3 rounded-lg"></div>
+                <div id="drinks-history" class="space-y-2 max-h-48 overflow-y-auto glass-card p-3 rounded-lg"></div>
             </div>
             <div class="flex space-x-3">
                 <button id="add-drink-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-4 px-4 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
@@ -135,31 +144,31 @@
 
     <!-- ==== ADD DRINK MODAL ==== -->
     <div id="add-drink-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-        <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6">
+        <div class="glass-card rounded-2xl shadow-2xl w-full max-w-sm p-6">
             <h2 class="text-2xl font-bold mb-6 text-center">Nouvelle Conso</h2>
             <div class="grid grid-cols-4 gap-3 mb-4">
-                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Bière" data-type="Bière" data-abv="5" data-vol="33"></button>
-                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Vin" data-type="Vin" data-abv="12" data-vol="12.5"></button>
-                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Spiritueux" data-type="Spiritueux" data-abv="40" data-vol="4"></button>
-                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Shot" data-type="Shot" data-abv="40" data-vol="3"></button>
-                <button class="preset-btn col-span-4 flex items-center justify-center bg-gray-700 p-3 rounded-lg" id="fav-drink-preset-btn"></button>
+                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 p-3 rounded-lg" data-name="Bière" data-type="Bière" data-abv="5" data-vol="33"></button>
+                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 p-3 rounded-lg" data-name="Vin" data-type="Vin" data-abv="12" data-vol="12.5"></button>
+                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 p-3 rounded-lg" data-name="Spiritueux" data-type="Spiritueux" data-abv="40" data-vol="4"></button>
+                <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 p-3 rounded-lg" data-name="Shot" data-type="Shot" data-abv="40" data-vol="3"></button>
+                <button class="preset-btn col-span-4 flex items-center justify-center bg-gray-700/80 p-3 rounded-lg" id="fav-drink-preset-btn"></button>
             </div>
             <div id="shot-presets-container" class="hidden">
                 <h3 class="text-center text-gray-400 font-bold text-sm mb-2">SHOTS</h3>
                 <div class="grid grid-cols-4 gap-2 mb-6">
-                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Léger" data-type="Shot" data-abv="20" data-vol="3"></button>
-                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Moyen" data-type="Shot" data-abv="30" data-vol="3"></button>
-                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Fort" data-type="Shot" data-abv="40" data-vol="3"></button>
-                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Pur" data-type="Shot" data-abv="55" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 text-xs p-2 rounded-lg" data-name="Shot Léger" data-type="Shot" data-abv="20" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 text-xs p-2 rounded-lg" data-name="Shot Moyen" data-type="Shot" data-abv="30" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 text-xs p-2 rounded-lg" data-name="Shot Fort" data-type="Shot" data-abv="40" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 text-xs p-2 rounded-lg" data-name="Shot Pur" data-type="Shot" data-abv="55" data-vol="3"></button>
                 </div>
             </div>
             <form id="add-drink-form" class="space-y-4">
-                <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
+                <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
                 <div id="simple-drink-fields" class="grid grid-cols-2 gap-4">
                     <div id="drink-abv-stepper" class="number-stepper" data-value="5" data-step="0.5" data-min="0" data-unit="°"></div>
                     <div id="drink-vol-stepper" class="number-stepper" data-value="33" data-unit="cl"></div>
                 </div>
-                <div id="mixed-drink-section" class="hidden space-y-2 pt-2 border-t border-gray-700">
+                <div id="mixed-drink-section" class="hidden space-y-2 pt-2 border-t border-gray-600">
                    <label class="flex items-center justify-center text-sm text-gray-400 cursor-pointer"><input type="checkbox" id="is-mixed-drink" class="accent-amber-500 h-4 w-4 mr-2">C'est un cocktail / mélange</label>
                    <div id="mixed-drink-fields" class="hidden space-y-4">
                        <div class="number-stepper" data-value="25" data-unit="cl"></div>
@@ -206,6 +215,12 @@
         // --- Constants ---
         const ALCOHOL_DENSITY = 0.789, MALE_CONSTANT = 0.68, FEMALE_CONSTANT = 0.55, ELIMINATION_RATE_PER_HOUR = 0.15;
         const VOLUME_STEPS = [3, 4, 12.5, 25, 33, 50, 75, 100, 150, 200];
+        const GAUGE_COLORS = {
+            blue: { hex: '#60a5fa', text: 'text-blue-400' },
+            green: { hex: '#4ade80', text: 'text-green-400' },
+            orange: { hex: '#f59e0b', text: 'text-amber-500' },
+            red: { hex: '#f87171', text: 'text-red-400' }
+        };
 
         // --- LOCAL STORAGE ---
         function saveState() { localStorage.setItem('juimorState', JSON.stringify({ userProfile, drinks, sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null })); }
@@ -234,9 +249,9 @@
             container.querySelectorAll('.number-stepper').forEach(el => {
                 const value = parseFloat(el.dataset.value);
                 el.innerHTML = `
-                    <button type="button" class="stepper-btn bg-gray-600 rounded-l-lg px-3 py-3 text-lg font-bold">-</button>
-                    <span class="flex-grow text-center text-lg font-semibold bg-gray-700 py-3">${value}<span class="text-sm text-gray-400 ml-1">${el.dataset.unit}</span></span>
-                    <button type="button" class="stepper-btn bg-gray-600 rounded-r-lg px-3 py-3 text-lg font-bold">+</button>`;
+                    <button type="button" class="stepper-btn bg-gray-700/70 rounded-l-lg px-3 py-3 text-lg font-bold">-</button>
+                    <span class="flex-grow text-center text-lg font-semibold bg-gray-900/50 py-3">${value}<span class="text-sm text-gray-400 ml-1">${el.dataset.unit}</span></span>
+                    <button type="button" class="stepper-btn bg-gray-700/70 rounded-r-lg px-3 py-3 text-lg font-bold">+</button>`;
                 el.classList.add('flex', 'items-center', 'justify-between', 'w-full', 'border-2', 'border-gray-600', 'rounded-lg');
             });
         }
@@ -283,7 +298,7 @@
                 name: document.getElementById('user-name').value, weight: parseFloat(document.getElementById('user-weight').value), gender: document.getElementById('user-gender').value,
                 targetLevel: parseInt(document.getElementById('target-level').value),
                 favDrink: {
-                    type: favType, name: favType, // Use type as name
+                    type: favType, name: favType,
                     abv: parseFloat(favAbvStepper.dataset.value), vol: parseFloat(favVolStepper.dataset.value)
                 }
             };
@@ -450,15 +465,25 @@
             const currentBAC_gL = calculateBAC(now);
             const juimorLevel = Math.min(10, (currentBAC_gL / 2.0) * 10);
             document.getElementById('current-level').textContent = juimorLevel.toFixed(1);
-            document.getElementById('juimor-gauge').style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10));
+            
+            // Update gauge color and text
+            const gauge = document.getElementById('juimor-gauge');
+            const levelText = document.getElementById('current-level');
+            const legalLimitJuimor = 2.5;
+
+            let color;
+            if (juimorLevel > 7.5) color = GAUGE_COLORS.red;
+            else if (juimorLevel > 5) color = GAUGE_COLORS.orange;
+            else if (juimorLevel > legalLimitJuimor) color = GAUGE_COLORS.green;
+            else color = GAUGE_COLORS.blue;
+
+            gauge.style.stroke = color.hex;
+            levelText.className = `text-7xl md:text-8xl font-black transition-colors duration-500 ${color.text}`;
+            gauge.style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10));
 
             const bacInfo = document.getElementById('bac-legal-info');
-            if (currentBAC_gL > 0.5) {
-                bacInfo.textContent = `Attention: ${currentBAC_gL.toFixed(2)} g/L. Au dessus de la limite légale.`;
-                bacInfo.classList.add('text-red-400');
-            } else if (currentBAC_gL > 0) {
+            if (currentBAC_gL > 0) {
                  bacInfo.textContent = `Taux estimé: ${currentBAC_gL.toFixed(2)} g/L`;
-                 bacInfo.classList.remove('text-red-400');
             } else { bacInfo.textContent = ''; }
 
             const timeToZeroHours = currentBAC_gL / ELIMINATION_RATE_PER_HOUR;
@@ -472,12 +497,12 @@
             sisterDrinkBtn.classList.toggle('hidden', selectedDrinkId === null);
 
             updateHistory();
-            updateChart();
+            updateChart(color.hex);
         }
 
         function updateHistory() {
             historyDiv.innerHTML = (drinks.length > 0) ? drinks.slice().reverse().map(drink => `
-                <div class="history-item bg-gray-700 p-2 rounded-md flex justify-between items-center border-2 border-transparent cursor-pointer ${drink.id === selectedDrinkId ? 'selected' : ''}" data-id="${drink.id}">
+                <div class="history-item bg-gray-700/50 p-2 rounded-md flex justify-between items-center border-2 border-transparent cursor-pointer ${drink.id === selectedDrinkId ? 'selected' : ''}" data-id="${drink.id}">
                     <div class="flex items-center space-x-3 pointer-events-none">
                         <span class="text-amber-400">${ICONS[drink.type]}</span>
                         <div>
@@ -498,13 +523,13 @@
             const ctx = document.getElementById('bac-chart').getContext('2d');
             if (bacChart) bacChart.destroy();
             bacChart = new Chart(ctx, {
-                type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.2)', borderWidth: 2, tension: 0.4, fill: true }] },
+                type: 'line', data: { labels: [], datasets: [{ data: [], borderWidth: 2, tension: 0.4, fill: true }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#4b5563' } }, x: { ticks: { color: '#9ca3af' }, grid: { color: '#4b5563' } } }, plugins: { legend: { display: false } } }
             });
             chartInitialized = true;
         }
 
-        function updateChart() {
+        function updateChart(color) {
             if (!chartInitialized || !sessionStartTime) return;
             const now = new Date(), labels = [], data = [];
             const sessionDurationMinutes = (now - sessionStartTime) / 60000;
@@ -521,6 +546,8 @@
             }
             bacChart.data.labels = labels;
             bacChart.data.datasets[0].data = data;
+            bacChart.data.datasets[0].borderColor = color;
+            bacChart.data.datasets[0].backgroundColor = color + '33'; // Add alpha transparency
             bacChart.update('none');
         }
         
