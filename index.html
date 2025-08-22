@@ -6,6 +6,8 @@
     <title>JUIMOR - Estimateur d'Alcoolémie</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -22,12 +24,8 @@
         .history-item.selected { border-color: #f59e0b; background-color: #374151; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-
-        @media (max-height: 740px) {
-            #gauge-container { width: 12rem; height: 12rem; margin-bottom: 0.5rem; }
-            #current-level { font-size: 3.75rem; line-height: 1; }
-            #current-level-suffix { font-size: 1.875rem; line-height: 1; }
-        }
+        .tab-btn { transition: color 0.2s, border-color 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #f59e0b; border-color: #f59e0b; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 to-gray-900 text-white antialiased">
@@ -37,11 +35,8 @@
         <div class="w-full max-w-md mx-auto glass-card rounded-2xl p-6 md:p-8 shadow-2xl">
             <h1 class="text-4xl font-black text-center text-amber-400 mb-2">JUIMOR</h1>
             <p class="text-center text-gray-400 mb-8">Configure ton profil</p>
-
             <form id="setup-form" class="space-y-4">
-                <input type="text" id="user-name" placeholder="Ton nom" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required 
-                       maxlength="15" pattern="^[\p{L} ]+$" title="15 caractères max. Lettres et accents uniquement.">
-                
+                <input type="text" id="user-name" placeholder="Ton nom" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required maxlength="15" pattern="^[\p{L} ]+$" title="15 caractères max. Lettres et accents uniquement.">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex items-center bg-gray-700/50 border-2 border-gray-600 rounded-lg focus-within:border-amber-500">
                         <input type="number" min="30" max="500" id="user-weight" placeholder="Poids" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none" required>
@@ -53,7 +48,6 @@
                         <option value="female">Femme</option>
                     </select>
                 </div>
-
                 <div>
                     <label class="text-sm font-medium text-gray-400">Ta boisson préférée</label>
                     <select id="fav-drink-type" class="w-full mt-1 bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500 mb-2">
@@ -64,13 +58,11 @@
                         <div class="number-stepper" data-value="50" data-unit="cl"></div>
                     </div>
                 </div>
-
                 <div>
                     <label for="target-level" class="text-sm font-medium text-gray-400">Ton taux JUIMOR préféré (sur 10)</label>
                     <input type="range" id="target-level" min="1" max="10" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer mt-2 accent-amber-500">
                     <div class="text-center font-bold text-lg" id="target-level-display">5</div>
                 </div>
-
                 <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-4 rounded-lg transition duration-300 shadow-lg">Commencer</button>
             </form>
             <div class="mt-6 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-center">
@@ -82,12 +74,12 @@
     </div>
 
     <!-- ==== MAIN SCREEN ==== -->
-    <div id="main-screen" class="hidden app-screen flex flex-col p-4 md:p-6 relative overflow-hidden">
+    <div id="main-screen" class="hidden app-screen grid p-4 md:p-6 relative overflow-hidden" style="grid-template-rows: auto auto 1fr;">
         <header class="flex-shrink-0 flex justify-between items-start">
             <div>
                 <div class="flex items-baseline space-x-2">
                     <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
-                    <span id="version" class="text-xs text-gray-600">v3.0</span>
+                    <span id="version" class="text-xs text-gray-600">v4.1</span>
                 </div>
                 <button id="reset-btn" class="text-xs text-gray-500 hover:text-amber-400 transition mt-1">Réinitialiser</button>
             </div>
@@ -97,31 +89,40 @@
             </div>
         </header>
 
-        <main class="flex-grow flex flex-col items-center justify-center min-h-0">
-             <div id="gauge-container" class="relative w-64 h-64 md:w-80 md:h-80 my-4 transition-all duration-300">
+        <main class="flex flex-col items-center justify-center min-h-0">
+             <div class="relative w-56 h-56 md:w-80 md:h-80 transition-all duration-300">
                 <svg class="w-full h-full" viewBox="0 0 100 100"><circle class="juimor-gauge-bg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" /><circle id="juimor-gauge" class="juimor-gauge-fg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" stroke-dasharray="282.7" stroke-dashoffset="282.7" /></svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <p class="text-gray-400 text-lg">Taux Actuel</p>
+                    <p class="text-gray-400 text-base md:text-lg">Taux Actuel</p>
                     <div class="flex items-baseline justify-center space-x-2">
-                        <p id="current-level" class="text-7xl md:text-8xl font-black transition-all duration-300">0.0</p>
-                        <span id="current-level-suffix" class="text-4xl md:text-5xl font-bold text-gray-500 transition-all duration-300">/10</span>
+                        <p id="current-level" class="text-6xl md:text-8xl font-black transition-all duration-300">0.0</p>
+                        <span id="current-level-suffix" class="text-3xl md:text-5xl font-bold text-gray-500 transition-all duration-300">/10</span>
                     </div>
-                    <p class="text-gray-400 text-lg">Objectif: <span id="display-target" class="font-bold text-amber-400"></span></p>
+                    <p class="text-gray-400 text-base md:text-lg">Objectif: <span id="display-target" class="font-bold text-amber-400"></span></p>
                 </div>
             </div>
             <div class="text-center mt-2">
-                <p id="bac-legal-info" class="text-gray-400 h-5"></p>
-                <p id="time-to-zero" class="text-amber-400 font-bold h-5"></p>
+                <p id="bac-legal-info" class="text-gray-400 text-sm h-5"></p>
+                <p id="time-to-zero" class="text-amber-400 text-sm font-bold h-5"></p>
             </div>
         </main>
 
-        <div id="bottom-section" class="flex-shrink-0 w-full max-w-2xl mx-auto flex flex-col">
-            <div class="flex-shrink-0 glass-card rounded-lg p-2 mb-2 h-24 md:h-32">
-                <canvas id="bac-chart"></canvas>
+        <div id="bottom-section" class="w-full max-w-2xl mx-auto flex flex-col min-h-0">
+            <div class="flex-shrink-0 flex justify-center space-x-8 mb-2">
+                <button id="tab-history" class="tab-btn active font-bold py-1">Historique</button>
+                <button id="tab-graph" class="tab-btn font-bold py-1">Graphique</button>
             </div>
-            <div id="drinks-history-container" class="flex flex-col min-h-0 mb-2">
-                <h2 class="font-bold text-lg mb-2 flex-shrink-0">Historique</h2>
-                <div id="drinks-history" class="flex-grow overflow-y-auto space-y-2 glass-card p-3 rounded-lg max-h-36"></div>
+            <div class="swiper-container flex-grow min-h-0 mb-2">
+                <div class="swiper-wrapper h-full">
+                    <div class="swiper-slide h-full">
+                        <div id="drinks-history" class="h-full overflow-y-auto space-y-2 glass-card p-3 rounded-lg"></div>
+                    </div>
+                    <div class="swiper-slide h-full">
+                        <div class="glass-card rounded-lg p-2 h-full">
+                            <canvas id="bac-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div id="action-buttons" class="grid grid-cols-2 gap-3 flex-shrink-0">
                 <button id="add-drink-btn" class="action-btn col-span-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
@@ -145,22 +146,17 @@
                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700/80 p-2 rounded-lg" data-name="Cocktail" data-type="Cocktail"></button>
                     <button class="preset-btn col-span-5 flex items-center justify-center bg-gray-700/80 p-3 rounded-lg mt-2" id="fav-drink-preset-btn"></button>
                 </div>
-                
                 <div id="cocktail-presets-container" class="hidden mb-4">
                     <h3 class="text-center text-gray-400 font-bold text-sm mb-2">COCKTAILS CLASSIQUES</h3>
                     <div id="cocktail-presets-grid" class="grid grid-cols-4 gap-2"></div>
                 </div>
-                
                 <form id="add-drink-form" class="space-y-4">
                     <input type="hidden" id="editing-drink-id">
-                    <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required
-                           maxlength="15" pattern="^[\p{L} ]+$" title="15 caractères max. Lettres et accents uniquement.">
-                    
+                    <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700/50 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required maxlength="15" pattern="^[\p{L} ]+$" title="15 caractères max. Lettres et accents uniquement.">
                     <div id="simple-drink-fields" class="grid grid-cols-2 gap-4">
                         <div id="drink-abv-stepper" class="number-stepper" data-value="5" data-step="0.5" data-min="0" data-unit="°"></div>
                         <div id="drink-vol-stepper" class="number-stepper" data-value="33" data-unit="cl"></div>
                     </div>
-                    
                     <div id="mixed-drink-section" class="hidden space-y-2 pt-2 border-t border-gray-600">
                        <label class="flex items-center justify-center text-sm text-gray-400 cursor-pointer"><input type="checkbox" id="is-mixed-drink" class="accent-amber-500 h-4 w-4 mr-2">C'est un cocktail / mélange</label>
                        <div id="mixed-drink-fields" class="hidden space-y-4">
@@ -171,7 +167,6 @@
                     </div>
                 </form>
             </div>
-            
             <div class="flex space-x-4 p-6 pt-4 flex-shrink-0">
                 <button type="button" id="cancel-drink-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition">Annuler</button>
                 <button type="submit" id="save-drink-btn" form="add-drink-form" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-4 rounded-lg transition">Ajouter</button>
@@ -194,7 +189,7 @@
             };
             const COCKTAIL_PRESETS = { 'Mojito': { totalVol: 25, spiritAbv: 40, spiritPercent: 20 }, 'Gin Tonic': { totalVol: 20, spiritAbv: 40, spiritPercent: 25 }, 'Spritz': { totalVol: 18, spiritAbv: 11, spiritPercent: 50 }, 'Margarita': { totalVol: 12, spiritAbv: 40, spiritPercent: 42 }, 'Cosmo': { totalVol: 12, spiritAbv: 40, spiritPercent: 42 }, 'M. Mule': { totalVol: 20, spiritAbv: 40, spiritPercent: 25 }, 'Pina Colada': { totalVol: 22, spiritAbv: 40, spiritPercent: 23 }, 'Sex on Beach': { totalVol: 20, spiritAbv: 40, spiritPercent: 20 }, };
             const setupScreen = document.getElementById('setup-screen'), mainScreen = document.getElementById('main-screen'), addDrinkModal = document.getElementById('add-drink-modal'), setupForm = document.getElementById('setup-form'), addDrinkBtn = document.getElementById('add-drink-btn'), cancelBtn = document.getElementById('cancel-drink-btn'), addDrinkForm = document.getElementById('add-drink-form'), presetBtns = document.querySelectorAll('.preset-btn'), favBtn = document.getElementById('fav-drink-preset-btn'), resetBtn = document.getElementById('reset-btn'), historyDiv = document.getElementById('drinks-history'), sisterDrinkBtn = document.getElementById('sister-drink-btn'), userNameInput = document.getElementById('user-name'), drinkNameInput = document.getElementById('drink-name'), sessionTimeDisplay = document.getElementById('session-time'), editDrinkBtn = document.getElementById('edit-drink-btn'), addWaterBtn = document.getElementById('add-water-btn'), editingDrinkIdInput = document.getElementById('editing-drink-id'), modalTitle = document.getElementById('modal-title'), saveDrinkBtn = document.getElementById('save-drink-btn'), mixedSection = document.getElementById('mixed-drink-section'), isMixedCheck = document.getElementById('is-mixed-drink'), mixedFields = document.getElementById('mixed-drink-fields'), simpleFields = document.getElementById('simple-drink-fields'), cocktailPresetsContainer = document.getElementById('cocktail-presets-container'), cocktailPresetsGrid = document.getElementById('cocktail-presets-grid');
-            let userProfile = {}, drinks = [], sessionStartTime = null, bacUpdateInterval = null, timerUpdateAnimation = null, currentDrinkType = 'Bière', bacChart = null, selectedDrinkId = null;
+            let userProfile = {}, drinks = [], sessionStartTime = null, bacUpdateInterval = null, timerUpdateAnimation = null, currentDrinkType = 'Bière', bacChart = null, selectedDrinkId = null, mainSwiper = null;
             const ALCOHOL_DENSITY = 0.789, MALE_CONSTANT = 0.68, FEMALE_CONSTANT = 0.55, ELIMINATION_RATE_PER_HOUR = 0.15, JUIMOR_SCALE_MAX_BAC = 2.0;
             const VOLUME_STEPS = [3, 4, 12.5, 25, 33, 50, 75, 100, 150, 200];
             const GAUGE_COLORS = { blue: { hex: '#60a5fa', text: 'text-blue-400' }, green: { hex: '#4ade80', text: 'text-green-400' }, orange: { hex: '#f59e0b', text: 'text-amber-500' }, red: { hex: '#f87171', text: 'text-red-400' } };
@@ -203,7 +198,30 @@
             function saveState() { localStorage.setItem('juimorState', JSON.stringify({ userProfile, drinks, sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null })); }
             function loadState() { const savedState = localStorage.getItem('juimorState'); if (savedState) { const s = JSON.parse(savedState); userProfile = s.userProfile; drinks = s.drinks.map(d => ({ ...d, time: new Date(d.time) })); sessionStartTime = s.sessionStartTime ? new Date(s.sessionStartTime) : null; return true; } return false; }
             function clearState() { localStorage.removeItem('juimorState'); location.reload(); }
-            function initializeApp() { createSteppers(document.body); populatePresetButtons(); populateCocktailPresets(); if (loadState() && userProfile.name) startSession(); else setupScreen.style.display = 'flex'; }
+            function initializeApp() { createSteppers(document.body); populatePresetButtons(); populateCocktailPresets(); if (loadState() && userProfile.name) { startSession(); } else { setupScreen.style.display = 'flex'; } }
+            function initializeSwiper() {
+                mainSwiper = new Swiper('.swiper-container', {
+                    autoHeight: false,
+                    initialSlide: 0, // On démarre sur le premier slide (qui est maintenant l'historique)
+                });
+                const tabGraph = document.getElementById('tab-graph');
+                const tabHistory = document.getElementById('tab-history');
+
+                mainSwiper.on('slideChange', function () {
+                    // Logique inversée pour correspondre au nouvel ordre
+                    if (mainSwiper.activeIndex === 0) { // Slide 0 = Historique
+                        tabHistory.classList.add('active');
+                        tabGraph.classList.remove('active');
+                    } else { // Slide 1 = Graphique
+                        tabHistory.classList.remove('active');
+                        tabGraph.classList.add('active');
+                    }
+                });
+
+                // On inverse aussi les clics
+                tabHistory.addEventListener('click', () => mainSwiper.slideTo(0));
+                tabGraph.addEventListener('click', () => mainSwiper.slideTo(1));
+            }
             function createSteppers(container) { container.querySelectorAll('.number-stepper').forEach(el => { const value = parseFloat(el.dataset.value); el.innerHTML = `<button type="button" class="stepper-btn bg-gray-700/70 rounded-l-lg px-3 py-3 text-lg font-bold">-</button><span class="flex-grow text-center text-lg font-semibold bg-gray-900/50 py-3">${value}<span class="text-sm text-gray-400 ml-1">${el.dataset.unit}</span></span><button type="button" class="stepper-btn bg-gray-700/70 rounded-r-lg px-3 py-3 text-lg font-bold">+</button>`; el.classList.add('flex', 'items-center', 'justify-between', 'w-full', 'border-2', 'border-gray-600', 'rounded-lg'); }); }
             function populatePresetButtons() { presetBtns.forEach(btn => { if (btn.dataset.type) btn.innerHTML = `${ICONS[btn.dataset.type]}<span class="mt-1 font-bold text-xs">${btn.dataset.name}</span>`; }); }
             function populateCocktailPresets() { cocktailPresetsGrid.innerHTML = Object.keys(COCKTAIL_PRESETS).map(name => `<button type="button" class="cocktail-preset-btn text-xs font-semibold bg-gray-700/80 p-2 rounded-lg" data-name="${name}">${name}</button>`).join(''); }
@@ -222,10 +240,28 @@
             function openModalForEdit(drinkId) { const drink = drinks.find(d => d.id === drinkId); if (!drink) return; modalTitle.textContent = "Modifier la conso"; saveDrinkBtn.textContent = "Modifier"; editingDrinkIdInput.value = drink.id; addDrinkForm.reset(); resetMixedDrinkFields(); cocktailPresetsContainer.classList.add('hidden'); drinkNameInput.value = drink.name; updateStepper('drink-abv-stepper', drink.abv); updateStepper('drink-vol-stepper', drink.vol); addDrinkModal.classList.remove('hidden'); }
             function closeModal() { addDrinkForm.reset(); resetMixedDrinkFields(); editingDrinkIdInput.value = ''; cocktailPresetsContainer.classList.add('hidden'); addDrinkModal.classList.add('hidden'); }
             function resetMixedDrinkFields() { mixedSection.classList.add('hidden'); mixedFields.classList.add('hidden'); isMixedCheck.checked = false; simpleFields.classList.remove('hidden'); }
-            function startSession() { setupScreen.style.display = 'none'; mainScreen.style.display = 'flex'; document.getElementById('display-name').textContent = userProfile.name; document.getElementById('display-target').textContent = userProfile.targetLevel; const fav = userProfile.favDrink; favBtn.innerHTML = `${ICONS.Star}<span class="ml-3 font-bold">Préférée</span>`; favBtn.dataset.type = fav.type; favBtn.dataset.name = fav.name; favBtn.dataset.abv = fav.abv; favBtn.dataset.vol = fav.vol; initializeChart(); if (bacUpdateInterval) clearInterval(bacUpdateInterval); if (timerUpdateAnimation) cancelAnimationFrame(timerUpdateAnimation); bacUpdateInterval = setInterval(updateBacData, 5000); timerUpdateAnimation = requestAnimationFrame(updateTimer); updateFullUI(); }
+            function startSession() {
+                setupScreen.style.display = 'none';
+                mainScreen.style.display = 'grid';
+                document.getElementById('display-name').textContent = userProfile.name;
+                document.getElementById('display-target').textContent = userProfile.targetLevel;
+                const fav = userProfile.favDrink;
+                favBtn.innerHTML = `${ICONS.Star}<span class="ml-3 font-bold">Préférée</span>`;
+                favBtn.dataset.type = fav.type;
+                favBtn.dataset.name = fav.name;
+                favBtn.dataset.abv = fav.abv;
+                favBtn.dataset.vol = fav.vol;
+                initializeChart();
+                initializeSwiper();
+                if (bacUpdateInterval) clearInterval(bacUpdateInterval);
+                if (timerUpdateAnimation) cancelAnimationFrame(timerUpdateAnimation);
+                bacUpdateInterval = setInterval(updateBacData, 5000);
+                timerUpdateAnimation = requestAnimationFrame(updateTimer);
+                updateFullUI();
+            }
             function updateTimer() { if (!sessionStartTime) return; const elapsed = new Date(Date.now() - sessionStartTime); const [h, m, s] = [elapsed.getUTCHours(), elapsed.getUTCMinutes(), elapsed.getUTCSeconds()].map(t => String(t).padStart(2, '0')); sessionTimeDisplay.textContent = `Session: ${h}:${m}:${s}`; timerUpdateAnimation = requestAnimationFrame(updateTimer); }
             function calculateBAC(atTime) { if (!userProfile.weight) return 0; const genderConstant = userProfile.gender === 'male' ? MALE_CONSTANT : FEMALE_CONSTANT; const bodyWater = userProfile.weight * genderConstant; const totalGramsIngested = drinks.filter(drink => drink.grams && drink.time <= atTime).reduce((sum, drink) => sum + drink.grams, 0); if (totalGramsIngested === 0) return 0; const peakBAC = totalGramsIngested / bodyWater; const hoursSinceStart = (atTime - sessionStartTime) / (3600 * 1000); const alcoholEliminated = ELIMINATION_RATE_PER_HOUR * hoursSinceStart; return Math.max(0, peakBAC - alcoholEliminated); }
-            function updateBacData() { if (!sessionStartTime) return; const now = new Date(); const currentBAC_gL = calculateBAC(now); const juimorLevel = Math.min(10, (currentBAC_gL / JUIMOR_SCALE_MAX_BAC) * 10); document.getElementById('current-level').textContent = juimorLevel.toFixed(1); const gauge = document.getElementById('juimor-gauge'); const levelText = document.getElementById('current-level'); const legalLimitJuimor = (0.5 / JUIMOR_SCALE_MAX_BAC) * 10; let color; if (juimorLevel > 7.5) color = GAUGE_COLORS.red; else if (juimorLevel > 5) color = GAUGE_COLORS.orange; else if (juimorLevel > legalLimitJuimor) color = GAUGE_COLORS.green; else color = GAUGE_COLORS.blue; gauge.style.stroke = color.hex; levelText.className = `text-7xl md:text-8xl font-black transition-colors duration-500 ${color.text}`; gauge.style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10)); document.getElementById('bac-legal-info').textContent = currentBAC_gL > 0 ? `Taux estimé: ${currentBAC_gL.toFixed(2)} g/L` : ''; const timeToZeroHours = currentBAC_gL / ELIMINATION_RATE_PER_HOUR; const timeToZeroEl = document.getElementById('time-to-zero'); if (timeToZeroHours > 0) { const zeroTime = new Date(now.getTime() + timeToZeroHours * 3600000); timeToZeroEl.textContent = `Retour à 0 estimé à ${zeroTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`; } else { timeToZeroEl.textContent = ''; } updateChart(color.hex); }
+            function updateBacData() { if (!sessionStartTime) return; const now = new Date(); const currentBAC_gL = calculateBAC(now); const juimorLevel = Math.min(10, (currentBAC_gL / JUIMOR_SCALE_MAX_BAC) * 10); document.getElementById('current-level').textContent = juimorLevel.toFixed(1); const gauge = document.getElementById('juimor-gauge'); const levelText = document.getElementById('current-level'); const legalLimitJuimor = (0.5 / JUIMOR_SCALE_MAX_BAC) * 10; let color; if (juimorLevel > 7.5) color = GAUGE_COLORS.red; else if (juimorLevel > 5) color = GAUGE_COLORS.orange; else if (juimorLevel > legalLimitJuimor) color = GAUGE_COLORS.green; else color = GAUGE_COLORS.blue; gauge.style.stroke = color.hex; levelText.className = `text-6xl md:text-8xl font-black transition-all duration-300 ${color.text}`; gauge.style.strokeDashoffset = (2 * Math.PI * 45) * (1 - (juimorLevel / 10)); document.getElementById('bac-legal-info').textContent = currentBAC_gL > 0 ? `Taux estimé: ${currentBAC_gL.toFixed(2)} g/L` : ''; const timeToZeroHours = currentBAC_gL / ELIMINATION_RATE_PER_HOUR; const timeToZeroEl = document.getElementById('time-to-zero'); if (timeToZeroHours > 0) { const zeroTime = new Date(now.getTime() + timeToZeroHours * 3600000); timeToZeroEl.textContent = `Retour à 0 estimé à ${zeroTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`; } else { timeToZeroEl.textContent = ''; } updateChart(color.hex); }
             function updateFullUI() { updateBacData(); const isDrinkSelected = selectedDrinkId !== null; addDrinkBtn.classList.toggle('hidden', isDrinkSelected); addDrinkBtn.classList.toggle('col-span-2', !isDrinkSelected); editDrinkBtn.classList.toggle('hidden', !isDrinkSelected); sisterDrinkBtn.classList.toggle('hidden', !isDrinkSelected); addWaterBtn.classList.toggle('col-span-2', !isDrinkSelected); addWaterBtn.classList.toggle('col-span-full', isDrinkSelected); updateHistory(); }
             function updateHistory() { historyDiv.innerHTML = (drinks.length > 0) ? drinks.slice().reverse().map(drink => { const icon = ICONS[drink.type] || ICONS['Cocktail']; if (drink.type === 'Eau') { return `<div class="history-item bg-gray-700/50 p-2 rounded-md flex justify-between items-center border-2 border-transparent" data-id="${drink.id}" data-type="Eau"><div class="flex items-center space-x-3"><span class="text-blue-400">💧</span><p class="font-medium">${drink.name}</p></div><div class="flex items-center space-x-3"><p class="text-sm text-gray-400">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p><button class="delete-drink-btn text-gray-500 hover:text-red-400 p-1">${ICONS.Trash}</button></div></div>`; } return `<div class="history-item bg-gray-700/50 p-2 rounded-md flex justify-between items-center border-2 border-transparent cursor-pointer ${drink.id === selectedDrinkId ? 'selected' : ''}" data-id="${drink.id}"><div class="flex items-center space-x-3 pointer-events-none"><span class="text-amber-400">${icon}</span><div><p class="font-medium">${drink.name}</p><p class="text-xs text-gray-400">${drink.vol}cl à ${drink.abv}°</p></div></div><div class="flex items-center space-x-3"><p class="text-sm text-gray-400 pointer-events-none">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p><button class="delete-drink-btn text-gray-500 hover:text-red-400 p-1">${ICONS.Trash}</button></div></div>`; }).join('') : '<p class="text-gray-500 text-center">Aucune boisson pour le moment.</p>'; }
             let chartInitialized = false;
