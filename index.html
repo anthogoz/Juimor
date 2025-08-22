@@ -10,9 +10,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --app-height: 100vh;
+        }
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
+        }
+        .app-screen {
+            height: var(--app-height);
         }
         .juimor-gauge-bg { stroke: #374151; }
         .juimor-gauge-fg {
@@ -22,18 +28,22 @@
             transform-origin: center;
         }
         .modal-backdrop { background-color: rgba(0,0,0,0.7); }
-        .preset-btn, .stepper-btn, #add-drink-btn, #food-btn { 
+        .preset-btn, .stepper-btn, #add-drink-btn, #sister-drink-btn { 
             transition: transform 0.1s ease-in-out, background-color 0.2s; 
         }
-        .preset-btn:active, .stepper-btn:active, #add-drink-btn:active, #food-btn:active { 
+        .preset-btn:active, .stepper-btn:active, #add-drink-btn:active, #sister-drink-btn:active { 
             transform: scale(0.95); 
+        }
+        .history-item.selected {
+            border-color: #f59e0b;
+            background-color: #374151;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
 
     <!-- ==== SETUP SCREEN ==== -->
-    <div id="setup-screen" class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div id="setup-screen" class="app-screen flex flex-col items-center justify-center p-4">
         <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl">
             <h1 class="text-4xl font-black text-center text-amber-400 mb-2">JUIMOR</h1>
             <p class="text-center text-gray-400 mb-8">Configure ton profil</p>
@@ -43,7 +53,7 @@
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex items-center bg-gray-700 border-2 border-gray-600 rounded-lg focus-within:border-amber-500">
-                        <input type="number" min="0" id="user-weight" placeholder="Poids" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none" required>
+                        <input type="number" min="0" id="user-weight" placeholder="Poids" class="w-full bg-transparent px-4 py-3 text-white focus:outline-none appearance-none" required>
                         <span class="text-gray-400 pr-4">kg</span>
                     </div>
                     <select id="user-gender" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
@@ -76,8 +86,8 @@
     </div>
 
     <!-- ==== MAIN SCREEN ==== -->
-    <div id="main-screen" class="hidden min-h-screen flex flex-col p-4 md:p-6">
-        <header class="flex justify-between items-center mb-6">
+    <div id="main-screen" class="hidden app-screen flex-col p-4 md:p-6 relative">
+        <header class="flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black text-amber-400">JUIMOR</h1>
                 <button id="reset-btn" class="text-xs text-gray-500 hover:text-amber-400 transition">Réinitialiser</button>
@@ -89,7 +99,7 @@
         </header>
 
         <main class="flex-grow flex flex-col items-center justify-center">
-            <div class="relative w-64 h-64 md:w-80 md:h-80 mb-4">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 my-4">
                 <svg class="w-full h-full" viewBox="0 0 100 100">
                     <circle class="juimor-gauge-bg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" />
                     <circle id="juimor-gauge" class="juimor-gauge-fg" cx="50" cy="50" r="45" stroke-width="10" fill="transparent" stroke-dasharray="282.7" stroke-dashoffset="282.7" />
@@ -104,7 +114,7 @@
                 </div>
             </div>
             <p id="bac-legal-info" class="text-center text-gray-400 mb-2 h-5"></p>
-            <p id="time-to-zero" class="text-center text-amber-400 font-bold mb-6 h-5"></p>
+            <p id="time-to-zero" class="text-center text-amber-400 font-bold h-5"></p>
         </main>
 
         <div class="w-full max-w-2xl mx-auto">
@@ -114,22 +124,32 @@
                 <div id="drinks-history" class="space-y-2 max-h-48 overflow-y-auto bg-gray-800 p-3 rounded-lg"></div>
             </div>
             <div class="flex space-x-3">
-                <button id="food-btn" class="w-1/4 bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-4 rounded-lg flex items-center justify-center"></button>
-                <button id="add-drink-btn" class="w-3/4 bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-4 px-4 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
+                <button id="add-drink-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-4 px-4 rounded-lg text-lg shadow-lg">+ Ajouter une conso</button>
+                <button id="sister-drink-btn" class="hidden w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-4 rounded-lg text-lg shadow-lg">La petite soeur</button>
             </div>
         </div>
+        <div id="version" class="absolute bottom-2 right-2 text-xs text-gray-600">v1.7</div>
     </div>
 
     <!-- ==== ADD DRINK MODAL ==== -->
     <div id="add-drink-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
         <div class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm p-6">
             <h2 class="text-2xl font-bold mb-6 text-center">Nouvelle Conso</h2>
-            <div class="grid grid-cols-4 gap-3 mb-6">
+            <div class="grid grid-cols-4 gap-3 mb-4">
                 <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Bière" data-type="Bière" data-abv="5" data-vol="33"></button>
                 <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Vin" data-type="Vin" data-abv="12" data-vol="12.5"></button>
                 <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Spiritueux" data-type="Spiritueux" data-abv="40" data-vol="4"></button>
                 <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 p-3 rounded-lg" data-name="Shot" data-type="Shot" data-abv="40" data-vol="3"></button>
                 <button class="preset-btn col-span-4 flex items-center justify-center bg-gray-700 p-3 rounded-lg" id="fav-drink-preset-btn"></button>
+            </div>
+            <div id="shot-presets-container" class="hidden">
+                <h3 class="text-center text-gray-400 font-bold text-sm mb-2">SHOTS</h3>
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Léger" data-type="Shot" data-abv="20" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Moyen" data-type="Shot" data-abv="30" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Fort" data-type="Shot" data-abv="40" data-vol="3"></button>
+                     <button class="preset-btn flex flex-col items-center justify-center bg-gray-700 text-xs p-2 rounded-lg" data-name="Shot Pur" data-type="Shot" data-abv="55" data-vol="3"></button>
+                </div>
             </div>
             <form id="add-drink-form" class="space-y-4">
                 <input type="text" id="drink-name" placeholder="Nom de la boisson" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-amber-500" required>
@@ -155,6 +175,12 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- MOBILE VIEWPORT FIX ---
+        function setAppHeight() { document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`); }
+        window.addEventListener('resize', setAppHeight);
+        window.addEventListener('orientationchange', setAppHeight);
+        setAppHeight();
+
         // --- SVG ICONS ---
         const ICONS = {
             'Bière': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2v2a5 5 0 0 1 5 5v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9a5 5 0 0 1 5-5V2"/><path d="M18 9h2a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-2"/><path d="M15 12H9"/></svg>`,
@@ -162,8 +188,7 @@
             'Spiritueux': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7H3"/><path d="m18 7-1.5-4.5a1 1 0 0 0-1- .5H8.5a1 1 0 0 0-1 .5L6 7"/><path d="M7 7h10v11a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7Z"/></svg>`,
             'Shot': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7h-2L15 2H9L7 7H5"/><path d="M7 7v11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7"/></svg>`,
             'Préférée': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2Z"/></svg>`,
-            'Trash': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`,
-            'Food': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M14 5v17h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2Z"/></svg>`
+            'Trash': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
         };
 
         // --- DOM Elements & State ---
@@ -172,17 +197,15 @@
               addDrinkForm = document.getElementById('add-drink-form'), presetBtns = document.querySelectorAll('.preset-btn'), favBtn = document.getElementById('fav-drink-preset-btn'),
               mixedSection = document.getElementById('mixed-drink-section'), isMixedCheck = document.getElementById('is-mixed-drink'), mixedFields = document.getElementById('mixed-drink-fields'),
               simpleFields = document.getElementById('simple-drink-fields'), resetBtn = document.getElementById('reset-btn'), historyDiv = document.getElementById('drinks-history'),
-              foodBtn = document.getElementById('food-btn');
+              shotPresetsContainer = document.getElementById('shot-presets-container'), sisterDrinkBtn = document.getElementById('sister-drink-btn');
         
-        let userProfile = {}, drinks = [], sessionStartTime = null, updateInterval = null, currentDrinkType = 'Bière', bacChart = null, hasEaten = false;
+        let userProfile = {}, drinks = [], sessionStartTime = null, updateInterval = null, currentDrinkType = 'Bière', bacChart = null, selectedDrinkId = null;
 
         // --- Constants ---
-        const ALCOHOL_DENSITY = 0.789, MALE_CONSTANT = 0.68, FEMALE_CONSTANT = 0.55, ELIMINATION_RATE_PER_HOUR = 0.15, FOOD_FACTOR = 0.85;
+        const ALCOHOL_DENSITY = 0.789, MALE_CONSTANT = 0.68, FEMALE_CONSTANT = 0.55, ELIMINATION_RATE_PER_HOUR = 0.15;
 
         // --- LOCAL STORAGE ---
-        function saveState() {
-            localStorage.setItem('juimorState', JSON.stringify({ userProfile, drinks, sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null, hasEaten }));
-        }
+        function saveState() { localStorage.setItem('juimorState', JSON.stringify({ userProfile, drinks, sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null })); }
         function loadState() {
             const savedState = localStorage.getItem('juimorState');
             if (savedState) {
@@ -190,7 +213,6 @@
                 userProfile = s.userProfile;
                 drinks = s.drinks.map(d => ({...d, time: new Date(d.time)}));
                 sessionStartTime = s.sessionStartTime ? new Date(s.sessionStartTime) : null;
-                hasEaten = s.hasEaten || false;
                 return true;
             }
             return false;
@@ -199,8 +221,7 @@
 
         // --- INITIALIZATION ---
         function initializeApp() {
-            createSteppers(document.getElementById('setup-form'));
-            createSteppers(document.getElementById('add-drink-modal'));
+            createSteppers(document.body);
             populatePresetButtons();
             if (loadState() && userProfile.name) startSession();
             else setupScreen.style.display = 'flex';
@@ -222,7 +243,13 @@
                 const type = btn.dataset.type, name = btn.dataset.name;
                 if (!type) return;
                 const icon = ICONS[type];
-                btn.innerHTML = `${icon}<span class="mt-1 font-bold text-sm">${name}</span>`;
+                let content;
+                if (type === 'Shot' && name.startsWith('Shot ')) {
+                    content = `${icon.replace('width="24" height="24"', 'width="20" height="20"')}<span class="mt-1 font-bold text-xs">${name.split(' ')[1]}</span>`;
+                } else {
+                    content = `${icon}<span class="mt-1 font-bold text-sm">${name}</span>`;
+                }
+                btn.innerHTML = content;
             });
         }
 
@@ -238,9 +265,10 @@
         });
         addDrinkForm.addEventListener('submit', handleAddDrink);
         presetBtns.forEach(btn => { btn.addEventListener('click', handlePresetClick); });
-        historyDiv.addEventListener('click', handleDeleteDrink);
-        foodBtn.addEventListener('click', handleFoodClick);
+        historyDiv.addEventListener('click', handleHistoryClick);
         document.body.addEventListener('click', handleStepperClick);
+        sisterDrinkBtn.addEventListener('click', handleSisterDrink);
+
 
         // --- Handlers ---
         function handleSetup(e) {
@@ -255,28 +283,28 @@
                     abv: parseFloat(favAbvStepper.dataset.value), vol: parseFloat(favVolStepper.dataset.value)
                 }
             };
-            sessionStartTime = new Date(); drinks = []; hasEaten = false;
+            sessionStartTime = new Date(); drinks = [];
             saveState();
             startSession();
         }
 
         function handleAddDrink(e) {
             e.preventDefault();
-            let alcoholGrams;
+            let alcoholGrams, abv, vol;
             const drinkName = document.getElementById('drink-name').value;
             if (isMixedCheck.checked) {
                 const [totalVol, spiritAbv, spiritPercent] = Array.from(mixedFields.querySelectorAll('.number-stepper')).map(s => parseFloat(s.dataset.value));
                 if ([totalVol, spiritAbv, spiritPercent].some(isNaN)) return;
                 const spiritVolumeCL = totalVol * (spiritPercent / 100);
                 alcoholGrams = (spiritVolumeCL * 10) * (spiritAbv / 100) * ALCOHOL_DENSITY;
+                abv = spiritAbv; vol = totalVol;
             } else {
-                const abv = parseFloat(document.getElementById('drink-abv-stepper').dataset.value);
-                const vol = parseFloat(document.getElementById('drink-vol-stepper').dataset.value);
+                abv = parseFloat(document.getElementById('drink-abv-stepper').dataset.value);
+                vol = parseFloat(document.getElementById('drink-vol-stepper').dataset.value);
                 if (isNaN(abv) || isNaN(vol)) return;
                 alcoholGrams = (vol * 10) * (abv / 100) * ALCOHOL_DENSITY;
             }
-            if (hasEaten) alcoholGrams *= FOOD_FACTOR;
-            drinks.push({ name: drinkName, grams: alcoholGrams, time: new Date(), type: currentDrinkType, id: Date.now() });
+            drinks.push({ name: drinkName, grams: alcoholGrams, time: new Date(), type: currentDrinkType, id: Date.now(), abv, vol });
             saveState(); updateUI(); closeModal();
         }
 
@@ -296,22 +324,35 @@
             }
             resetMixedDrinkFields();
             mixedSection.classList.toggle('hidden', currentDrinkType !== 'Spiritueux');
+            shotPresetsContainer.classList.toggle('hidden', currentDrinkType !== 'Shot');
         }
 
-        function handleDeleteDrink(e) {
-            const deleteBtn = e.target.closest('.delete-drink-btn');
-            if (deleteBtn) {
-                drinks = drinks.filter(d => d.id !== parseInt(deleteBtn.dataset.id));
-                saveState(); updateUI();
+        function handleHistoryClick(e) {
+            const item = e.target.closest('.history-item');
+            if (item) {
+                const id = parseInt(item.dataset.id);
+                if (e.target.closest('.delete-drink-btn')) {
+                    drinks = drinks.filter(d => d.id !== id);
+                    if (selectedDrinkId === id) selectedDrinkId = null;
+                } else {
+                    selectedDrinkId = (selectedDrinkId === id) ? null : id;
+                }
+                saveState();
+                updateUI();
+            }
+        }
+
+        function handleSisterDrink() {
+            if (!selectedDrinkId) return;
+            const originalDrink = drinks.find(d => d.id === selectedDrinkId);
+            if (originalDrink) {
+                drinks.push({ ...originalDrink, time: new Date(), id: Date.now() });
+                selectedDrinkId = null;
+                saveState();
+                updateUI();
             }
         }
         
-        function handleFoodClick() {
-            hasEaten = !hasEaten;
-            updateFoodButton();
-            saveState();
-        }
-
         function handleStepperClick(e) {
             const btn = e.target.closest('.stepper-btn');
             if (!btn) return;
@@ -331,13 +372,14 @@
         function updateStepper(stepperOrId, value) {
             const stepper = (typeof stepperOrId === 'string') ? document.getElementById(stepperOrId) : stepperOrId;
             if (!stepper) return;
-            const cleanValue = parseFloat(value.toFixed(2));
+            const cleanValue = parseFloat(parseFloat(value).toFixed(2));
             stepper.dataset.value = cleanValue;
             stepper.querySelector('span').firstChild.textContent = cleanValue;
         }
 
         function closeModal() { addDrinkForm.reset(); resetMixedDrinkFields(); addDrinkModal.classList.add('hidden'); }
         function resetMixedDrinkFields() {
+            shotPresetsContainer.classList.add('hidden');
             mixedSection.classList.add('hidden');
             mixedFields.classList.add('hidden');
             isMixedCheck.checked = false;
@@ -347,14 +389,14 @@
         // --- Core Functions ---
         function startSession() {
             setupScreen.style.display = 'none';
-            mainScreen.classList.remove('hidden');
+            mainScreen.style.display = 'flex';
             document.getElementById('display-name').textContent = userProfile.name;
             document.getElementById('display-target').textContent = userProfile.targetLevel;
             
             const fav = userProfile.favDrink;
             favBtn.innerHTML = `${ICONS[fav.type]}<span class="ml-3 font-bold">Préférée</span>`;
+            favBtn.dataset.type = fav.type;
 
-            updateFoodButton();
             initializeChart();
             if (updateInterval) clearInterval(updateInterval);
             updateInterval = setInterval(updateUI, 5000);
@@ -366,9 +408,11 @@
             const bodyWater = userProfile.weight * genderConstant;
             let totalGramsIngested = drinks.filter(d => d.time <= atTime).reduce((sum, drink) => sum + drink.grams, 0);
             if (totalGramsIngested === 0) return 0;
+            
+            const peakBAC = totalGramsIngested / bodyWater;
             const hoursSinceStart = (atTime - sessionStartTime) / (1000 * 60 * 60);
             const alcoholEliminated = ELIMINATION_RATE_PER_HOUR * hoursSinceStart;
-            const peakBAC = totalGramsIngested / bodyWater;
+            
             return Math.max(0, peakBAC - alcoholEliminated);
         }
 
@@ -399,6 +443,9 @@
                 const zeroTime = new Date(now.getTime() + timeToZeroHours * 3600000);
                 timeToZeroEl.textContent = `Retour à 0 estimé à ${zeroTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
             } else { timeToZeroEl.textContent = ''; }
+            
+            addDrinkBtn.classList.toggle('hidden', selectedDrinkId !== null);
+            sisterDrinkBtn.classList.toggle('hidden', selectedDrinkId === null);
 
             updateHistory();
             updateChart();
@@ -406,24 +453,21 @@
 
         function updateHistory() {
             historyDiv.innerHTML = (drinks.length > 0) ? drinks.slice().reverse().map(drink => `
-                <div class="bg-gray-700 p-2 rounded-md flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
+                <div class="history-item bg-gray-700 p-2 rounded-md flex justify-between items-center border-2 border-transparent cursor-pointer ${drink.id === selectedDrinkId ? 'selected' : ''}" data-id="${drink.id}">
+                    <div class="flex items-center space-x-3 pointer-events-none">
                         <span class="text-amber-400">${ICONS[drink.type]}</span>
-                        <p class="font-medium">${drink.name}</p>
+                        <div>
+                            <p class="font-medium">${drink.name}</p>
+                            <p class="text-xs text-gray-400">${drink.vol}cl à ${drink.abv}°</p>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <p class="text-sm text-gray-400">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
-                        <button class="delete-drink-btn text-gray-500 hover:text-red-400" data-id="${drink.id}">${ICONS.Trash}</button>
+                        <p class="text-sm text-gray-400 pointer-events-none">${new Date(drink.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                        <button class="delete-drink-btn text-gray-500 hover:text-red-400 p-1">${ICONS.Trash}</button>
                     </div>
                 </div>`).join('') : '<p class="text-gray-500 text-center">Aucune boisson pour le moment.</p>';
         }
         
-        function updateFoodButton() {
-            foodBtn.innerHTML = ICONS.Food;
-            foodBtn.classList.toggle('bg-green-600', hasEaten);
-            foodBtn.classList.toggle('bg-gray-700', !hasEaten);
-        }
-
         // --- CHART FUNCTIONS ---
         let chartInitialized = false;
         function initializeChart() {
@@ -440,14 +484,14 @@
             if (!chartInitialized || !sessionStartTime) return;
             const now = new Date(), labels = [], data = [];
             const sessionDurationMinutes = (now - sessionStartTime) / 60000;
-            const step = Math.max(1, Math.floor(sessionDurationMinutes / 20));
+            const step = Math.max(1, Math.floor(sessionDurationMinutes / 30));
 
             for (let i = 0; i <= sessionDurationMinutes; i += step) {
                 const timePoint = new Date(sessionStartTime.getTime() + i * 60000);
                 labels.push(timePoint.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                 data.push(calculateBAC(timePoint).toFixed(2));
             }
-            if (sessionDurationMinutes % step !== 0) {
+            if (sessionDurationMinutes % step !== 0 || data.length === 0) {
                  labels.push(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
                  data.push(calculateBAC(now).toFixed(2));
             }
